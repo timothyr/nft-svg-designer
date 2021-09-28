@@ -1,4 +1,12 @@
-# NftSvgDesigner
+# Nft Svg Designer
+
+Create interactive NFT's using vector graphics that are infinitely scalable and stored permanently on-chain
+
+[Live demo](https://timothyr.github.io/nft-svg-designer/)
+
+Built for ETHGlobal's [ETHOnline 2021 Hackathon](https://online.ethglobal.com/)
+
+## Angular version
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 12.2.1.
 

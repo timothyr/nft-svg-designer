@@ -16,6 +16,8 @@ export class NftSvgListComponent implements OnInit {
 
   private accounts: string[] = [];
 
+  public ethError?: string = undefined;
+
   public error?: string = undefined;
   public tokens?: Token[] = undefined;
 
@@ -64,18 +66,30 @@ export class NftSvgListComponent implements OnInit {
           })
           .catch((err: any) => {
             this.isLoading = false;
-            this.error = err;
+            console.error(err);
+            if (err.toString().includes('run Out of Gas?')) {
+              console.log("hey")
+              this.error = `Contract was not found. Please connect to the Polygon Network and try again.`;
+            }
+            else {
+              this.error = err;
+            }
             this.cdr.detectChanges();
           })
       })
       .catch((err: any) => {
         this.isLoading = false;
         this.error = err;
+        console.error(err);
         this.cdr.detectChanges();
       })
   }
 
   ngOnInit(): void {
+    this.initEthereum();
+  }
+
+  initEthereum() {
     this.isLoading = true;
     this.polygonContractService.initEthereum()
       .then((accounts: string[]) => {
@@ -83,7 +97,12 @@ export class NftSvgListComponent implements OnInit {
         this.userAddress = this.accounts[0];
         this.cdr.detectChanges();
       })
-      .then(() => this.displaySVGsFromContract());
+      .then(() => this.displaySVGsFromContract())
+      .catch((err: any) => {
+        this.ethError = err;
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      });
   }
 
   compareTokens(a: Token, b: Token) {

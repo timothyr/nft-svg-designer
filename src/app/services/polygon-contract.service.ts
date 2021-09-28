@@ -55,6 +55,9 @@ export class PolygonContractService {
         }
 
       }
+      else {
+        reject(`Metamask not found. Please enable the Metamask extension and try again.`)
+      }
     })
   }
 
