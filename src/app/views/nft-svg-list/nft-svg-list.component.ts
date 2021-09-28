@@ -2,14 +2,14 @@ import { Component, Inject, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { DOCUMENT } from '@angular/common';
 import { Eth } from 'web3-eth';
-
-
+import { Contract } from 'web3-eth-contract'
 import Web3 from 'web3';
-
-// const web3 = new Web3('ws://localhost:8546');
+import { Token } from '../../models/token';
 
 const API_KEY = 'K6TNX3YNNBWAHCPXY2AWN75GYVYU2QSFVI';
-const CONTRACT_URL = '';
+const nicoUserToken = "0x52434Cd9e4e4F965a20c8576841CbAAC4b2bA30e";
+const contractAddress = `0x8c356d86ba1b80578626abe4d7cbbeeae031637e`;
+const contractApiUrl = `https://api.polygonscan.com/api?module=contract&action=getabi&address=${contractAddress}&apikey=${API_KEY}`;
 
 @Component({
   selector: 'app-nft-svg-list',
@@ -23,6 +23,9 @@ export class NftSvgListComponent implements OnInit {
   private eth!: Eth;
   private accounts: string[] = [];
   private error?: string = undefined;
+
+  public testSvg: string = '';
+  public tokens?: Token[] = undefined;
 
   constructor(@Inject(DOCUMENT) private document: Document, private http: HttpClient) {
     this.window = this.document.defaultView;
@@ -68,20 +71,51 @@ export class NftSvgListComponent implements OnInit {
   }
 
   getContract(): any {
-    const contractAddress = `0x8c356d86ba1b80578626abe4d7cbbeeae031637e`;
-    const contractApiUrl = `https://api.polygonscan.com/api?module=contract&action=getabi&address=${contractAddress}&apikey=${API_KEY}`;
+
     return this.http.get<any>(contractApiUrl).subscribe((res: any) => {
       if (res.result != undefined && res.result != '') {
         const contractABI = JSON.parse(res.result);
         const contract = new this.eth.Contract(contractABI, "0x8C356d86Ba1b80578626abE4D7CBBeeAE031637E");
 
-        const balanceOf = contract.methods.balanceOf("0x52434Cd9e4e4F965a20c8576841CbAAC4b2bA30e")
-          .call({ from: this.accounts[0] })
-          .then((balance: string) => {
-            console.log("got balance", balance)
+        this.getNumNFTsUserHas(contract, nicoUserToken, this.accounts[0])
+          .then((numNFTs: number) => {
+            console.log("balance", numNFTs)
+
+            if (numNFTs > 0) {
+              this.tokens = [];
+            }
+
+            for (let i = 0; i < numNFTs; i++) {
+
+              this.getTokenOfOwnerByIndex(contract, nicoUserToken, i, this.accounts[0])
+                .then((tokenIndex: number) => {
+                  console.log("got tokenIndex 0", tokenIndex);
+
+                  this.getTokenUri(contract, tokenIndex, this.accounts[0])
+                    .then((tokenUri: any) => {
+                      console.log("got tokenURI", tokenIndex, tokenUri);
+
+                      const tokenObject = this.decodeTokenURI(tokenUri, tokenIndex);
+
+                      this.tokens?.push(tokenObject);
+
+                    })
+                    .catch((err: any) => {
+                      console.error("error getting tokenURI", err);
+                    })
+
+                })
+                .catch((err: any) => {
+                  console.error("error getting tokenIndex", err);
+                })
+
+            }
+
+            // TODO for loop
+
           })
           .catch((err: any) => {
-            console.error("error getting balance", err)
+            console.error("error getting num nfts", err);
           })
 
         console.log(contract)
@@ -90,4 +124,27 @@ export class NftSvgListComponent implements OnInit {
     })
   }
 
+  decodeTokenURI(tokenURI: string, tokenIndex: number): any {
+    const tokenJSONBase64 = tokenURI.slice(tokenURI.indexOf(',') + 1);
+    const tokenObject = JSON.parse(atob(tokenJSONBase64));
+    const imageBase64 = tokenObject.image.slice(tokenObject.image.indexOf(',') + 1);
+    const imageSvg = atob(imageBase64);
+    tokenObject.image = imageSvg;
+    tokenObject.index = tokenIndex;
+    return tokenObject;
+  }
+
+  getNumNFTsUserHas(contract: Contract, userToken: string, account: string): Promise<number> {
+    return contract.methods.balanceOf(userToken).call({ from: account })
+  }
+
+  getTokenOfOwnerByIndex(contract: Contract, userToken: string, index: number, account: string): Promise<number> {
+    return contract.methods.tokenOfOwnerByIndex(userToken, index).call({ from: account })
+  }
+
+  getTokenUri(contract: Contract, tokenIndex: number, account: string): Promise<any> {
+    return contract.methods.tokenURI(tokenIndex).call({ from: account })
+  }
 }
+
+
