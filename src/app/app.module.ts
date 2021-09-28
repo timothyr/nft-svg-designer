@@ -7,6 +7,7 @@ import { LandingPageComponent } from './views/landing-page/landing-page.componen
 import { NftSvgListComponent } from './views/nft-svg-list/nft-svg-list.component';
 import { HttpClientModule } from '@angular/common/http';
 import { SafePipe } from './pipe/safe.pipe';
+import { FormsModule } from '@angular/forms';
 
 @NgModule({
   declarations: [
@@ -18,7 +19,8 @@ import { SafePipe } from './pipe/safe.pipe';
   imports: [
     BrowserModule,
     AppRoutingModule,
-    HttpClientModule
+    HttpClientModule,
+    FormsModule
   ],
   providers: [],
   bootstrap: [AppComponent]

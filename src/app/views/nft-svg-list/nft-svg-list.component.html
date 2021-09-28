@@ -1,66 +1,114 @@
 <div class="bg-white">
-    <div class="max-w-2xl mx-auto py-16 px-4 sm:py-24 sm:px-6 lg:max-w-7xl lg:px-8">
-        <h2 class="sr-only">Products</h2>
 
+
+
+    <div class="max-w-2xl mx-auto py-16 px-4 sm:py-24 sm:px-6 lg:max-w-7xl lg:px-8">
+
+        <!-- Inputs -->
+        <div class="mb-5">
+            <label for="contract-address">Contract Address</label>
+            <input id="contract-address" name="contractaddress" type="text" spellcheck="false"
+                class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                placeholder="Contract address" [(ngModel)]="contractAddress" (keyup.enter)="onContractEnter()">
+        </div>
+
+        <div class="mb-10">
+            <label for="user-address">User Address</label>
+            <input id="user-address" name="useraddress" type="text" spellcheck="false"
+                class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                placeholder="Contract address" [(ngModel)]="userAddress" (keyup.enter)="onUserEnter()">
+        </div>
+
+        <h2 class="sr-only">Tokens</h2>
+
+        <!-- Token SVG list -->
         <div class="grid grid-cols-1 gap-y-10 sm:grid-cols-2 gap-x-6 lg:grid-cols-3 xl:grid-cols-4 xl:gap-x-8">
-            <a href="#" class="group" *ngFor="let token of tokens">
-                <div
-                    class="w-full aspect-w-1 aspect-h-1 bg-gray-200 rounded-lg overflow-hidden xl:aspect-w-7 xl:aspect-h-8" [innerHTML]="token.image | safe" >
+            <a href="#" class="group" *ngFor="let token of tokens" [ngClass]="{'animate-pulse' : token.isLoading}">
+                <div class="w-full aspect-w-1 aspect-h-1 rounded-lg overflow-hidden xl:aspect-w-7 xl:aspect-h-8"
+                    [innerHTML]="token.image | safe">
                 </div>
-                <h3 class="mt-4 text-sm text-gray-700">
+                <h3 class="mt-4 text-sm text-gray-700" *ngIf="!token.isLoading">
                     Index {{ token.index }}
                 </h3>
-                <p class="mt-1 text-lg font-medium text-gray-900">
+                <p class="mt-1 text-lg font-medium text-gray-900" [ngClass]="{'text-center' : token.isLoading}">
                     {{ token.name }}
                 </p>
             </a>
-
-            <a href="#" class="group">
-                <div
-                    class="w-full aspect-w-1 aspect-h-1 bg-gray-200 rounded-lg overflow-hidden xl:aspect-w-7 xl:aspect-h-8">
-                    <img src="https://tailwindui.com/img/ecommerce-images/category-page-04-image-card-02.jpg"
-                        alt="Olive drab green insulated bottle with flared screw lid and flat top."
-                        class="w-full h-full object-center object-cover group-hover:opacity-75">
-                </div>
-                <h3 class="mt-4 text-sm text-gray-700">
-                    Nomad Tumbler
-                </h3>
-                <p class="mt-1 text-lg font-medium text-gray-900">
-                    $35
-                </p>
-            </a>
-
-            <a href="#" class="group">
-                <div
-                    class="w-full aspect-w-1 aspect-h-1 bg-gray-200 rounded-lg overflow-hidden xl:aspect-w-7 xl:aspect-h-8">
-                    <img src="https://tailwindui.com/img/ecommerce-images/category-page-04-image-card-03.jpg"
-                        alt="Person using a pen to cross a task off a productivity paper card."
-                        class="w-full h-full object-center object-cover group-hover:opacity-75">
-                </div>
-                <h3 class="mt-4 text-sm text-gray-700">
-                    Focus Paper Refill
-                </h3>
-                <p class="mt-1 text-lg font-medium text-gray-900">
-                    $89
-                </p>
-            </a>
-
-            <a href="#" class="group">
-                <div
-                    class="w-full aspect-w-1 aspect-h-1 bg-gray-200 rounded-lg overflow-hidden xl:aspect-w-7 xl:aspect-h-8">
-                    <img src="https://tailwindui.com/img/ecommerce-images/category-page-04-image-card-04.jpg"
-                        alt="Hand holding black machined steel mechanical pencil with brass tip and top."
-                        class="w-full h-full object-center object-cover group-hover:opacity-75">
-                </div>
-                <h3 class="mt-4 text-sm text-gray-700">
-                    Machined Mechanical Pencil
-                </h3>
-                <p class="mt-1 text-lg font-medium text-gray-900">
-                    $35
-                </p>
-            </a>
-
-            <!-- More products... -->
         </div>
+
+        <!-- Dialog that appears if no tokens found at user address -->
+        <div class="flex justify-center" *ngIf="!tokens?.length && !isLoading && !error">
+            <div
+                class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <div class="sm:flex sm:items-start">
+                        <div
+                            class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
+                            <!-- Heroicon name: outline/exclamation -->
+                            <svg class="h-6 w-6 text-red-600" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
+                        </div>
+                        <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                            <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
+                                No NFTs found for User
+                            </h3>
+                            <div class="mt-2">
+                                <p class="text-sm text-gray-500">
+                                    The user address inputted above contains no tokens at the selected contract address.
+                                    Click the button below to see tokens minted by the project creator.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                    <button type="button" (click)="seeNicosTokens()"
+                        class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm">
+                        See Nico's Tokens
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!--  -->
+
+        <!-- Dialog that appears if no tokens found at user address -->
+        <div class="flex justify-center" *ngIf="!isLoading && error">
+            <div
+                class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <div class="sm:flex sm:items-start">
+                        <div
+                            class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
+                            <!-- Heroicon name: outline/exclamation -->
+                            <svg class="h-6 w-6 text-red-600" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
+                        </div>
+                        <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                            <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
+                                Error getting NFTs
+                            </h3>
+                            <div class="mt-2">
+                                <p class="text-sm text-gray-500">
+                                    {{ error }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                    <button type="button" (click)="displaySVGsFromContract()"
+                        class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm">
+                        Try again
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!--  -->
     </div>
 </div>
