@@ -42,6 +42,7 @@ export class NftSvgListComponent implements OnInit {
 
   displaySVGsFromContract() {
     this.isLoading = true;
+    this.error = undefined;
     this.cdr.detectChanges();
     this.polygonContractService.getSVGToolboxContract(this.contractAddress)
       .then((contract: Contract) => {
@@ -90,7 +91,9 @@ export class NftSvgListComponent implements OnInit {
   }
 
   initEthereum() {
+    this.ethError = undefined;
     this.isLoading = true;
+    this.cdr.detectChanges();
     this.polygonContractService.initEthereum()
       .then((accounts: string[]) => {
         this.accounts = accounts;
